@@ -1,0 +1,7 @@
+/vendor/
+/.idea/
+/logs/
+/data/
+/services/active/*/supervise
+composer.lock
+.env.local
