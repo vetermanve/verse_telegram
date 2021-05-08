@@ -1,5 +1,5 @@
 {
-  "name": "verse/run",
+  "name": "verse/telegram",
   "description": "Telegram bundle for verse framework",
   "keywords": ["framework", "telegram", "bundle"],
   "homepage": "http://github.com/vetermanve/verse_telegram/",
