@@ -42,12 +42,12 @@ class TelegramReplyChannel extends DataChannelProto
         $wasSent = false;
 
         switch ($route->getAppear()) {
-            case MessageRoute::APPEAR_NEW_MESSAGE:
+            case MessageRoute::APPEAR_CALLBACK_ANSWER:
                 $this->telegramClient->answerCallback($msg->getBody(), $route->getOriginEntity());
                 $this->runtime->debug('TELEGRAM_REPLY_SENT:CALLBACK', ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
                 $wasSent = true;
                 break;
-            case MessageRoute::APPEAR_CALLBACK_ANSWER:
+            case MessageRoute::APPEAR_NEW_MESSAGE:
                 $this->telegramClient->post($route->getChatId(), $msg->getBody(), $keyboard, $route->getOriginEntity());
                 $this->runtime->debug('TELEGRAM_REPLY_SENT:MESSAGE', ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
                 $wasSent = true;
