@@ -29,7 +29,8 @@ class VerseTelegramClient
      * @return Api
      * @throws TelegramSDKException
      */
-    public function getApi () {
+    public function getApi()
+    {
         if (!isset($this->api)) {
             $this->api = new Api($this->token);
         }
@@ -80,7 +81,6 @@ class VerseTelegramClient
      */
     public function post($chatId, $text, $keyboard = [], $replyToMessageId = 0)
     {
-        $telegram = new Api($this->token);
         $params = [
             'chat_id' => $chatId,
             'text' => is_string($text) ? $text : json_encode($text),
@@ -96,9 +96,32 @@ class VerseTelegramClient
             $params['reply_to_message_id'] = $replyToMessageId;
         }
 
-        $message = $telegram->sendMessage($params);
+        return $this->getApi()->sendMessage($params);
+    }
 
-        return $message;
+    /**
+     * @param $chatId
+     * @param $text
+     * @param array $keyboard
+     * @param int $originalMessageId
+     * @return bool|Message
+     * @throws TelegramSDKException
+     */
+    public function edit($chatId, $text, $keyboard = [], $originalMessageId = 0)
+    {
+        $params = [
+            'chat_id' => $chatId,
+            'message_id' => $originalMessageId,
+            'text' => is_string($text) ? $text : json_encode($text),
+            #'parse_mode' => 'html',
+            'disable_web_page_preview' => '1',
+        ];
+
+        if (!empty($keyboard)) {
+            $params['reply_markup'] = json_encode(['inline_keyboard' => [$keyboard]]);
+        }
+
+        return $this->getApi()->editMessageText($params);
     }
 
     /**
@@ -107,7 +130,8 @@ class VerseTelegramClient
      * @return bool
      * @throws TelegramSDKException
      */
-    public function answerCallback($text, $callbackId) {
+    public function answerCallback($text, $callbackId)
+    {
         return $this->getApi()->answerCallbackQuery([
             'callback_query_id' => $callbackId,
             'text' => $text
@@ -118,7 +142,8 @@ class VerseTelegramClient
      * @param $id
      * @return \Telegram\Bot\Objects\Chat|null
      */
-    public function getChat ($id) {
+    public function getChat($id)
+    {
 
         try {
             return $this->client->getApi()->getChat(['chat_id' => $id]);
@@ -127,7 +152,8 @@ class VerseTelegramClient
         }
     }
 
-    public function getChats($ids) {
+    public function getChats($ids)
+    {
         $chats = [];
         foreach ($ids as $id) {
             $chats[$id] = $this->getChat($id);

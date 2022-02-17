@@ -12,8 +12,10 @@
     }
   ],
   "require": {
-    "php": "^7.0",
-    "verse/run": "^0.0"
+    "php": "^7.4",
+    "verse/run": "^0.0",
+    "irazasyed/telegram-bot-sdk": "^3.4",
+    "ext-json": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "^5.7"

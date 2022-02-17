@@ -4,6 +4,7 @@
 namespace Verse\Telegram\Run\Channel;
 
 
+use Verse\Telegram\Run\Channel\Util\MessageRoute;
 use Verse\Telegram\Run\Spec\MessageType;
 use Verse\Telegram\Service\VerseTelegramClient;
 use Verse\Run\Channel\DataChannelProto;
@@ -31,24 +32,37 @@ class TelegramReplyChannel extends DataChannelProto
     {
         $keyboard = $msg->getMeta(self::KEYBOARD, []);
 
-        [$channel, $chatId, $messageType, $entityId] = explode(':', $msg->getDestination());
+        $route = new MessageRoute($msg->getDestination());
 
-        if ($channel !== 'tg') {
+        if ($route->getChannel() !== MessageRoute::CHANNEL) {
             $this->runtime->error('Channel massage came with wrong destination', ['dest' => $msg->getDestination()]);
             return false;
         }
 
-        if ($messageType === MessageType::CALLBACK_QUERY) {
-             $this->telegramClient->answerCallback($msg->getBody(), $entityId);
-            $this->runtime->debug('TELEGRAM_REPLY_SENT:CALLBACK', ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
-            return true;
-        } elseif ($messageType === MessageType::MESSAGE) {
-            $this->telegramClient->post($chatId, $msg->getBody(), $keyboard, $entityId);
-            $this->runtime->debug('TELEGRAM_REPLY_SENT:MESSAGE', ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
-            return true;
+        $wasSent = false;
+
+        switch ($route->getAppear()) {
+            case MessageRoute::APPEAR_NEW_MESSAGE:
+                $this->telegramClient->answerCallback($msg->getBody(), $route->getOriginEntity());
+                $this->runtime->debug('TELEGRAM_REPLY_SENT:CALLBACK', ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
+                $wasSent = true;
+                break;
+            case MessageRoute::APPEAR_CALLBACK_ANSWER:
+                $this->telegramClient->post($route->getChatId(), $msg->getBody(), $keyboard, $route->getOriginEntity());
+                $this->runtime->debug('TELEGRAM_REPLY_SENT:MESSAGE', ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
+                $wasSent = true;
+                break;
+            case MessageRoute::APPEAR_EDIT_MESSAGE:
+                $this->telegramClient->edit($route->getChatId(), $msg->getBody(), $keyboard, $route->getOriginEntity());
+                $this->runtime->debug('TELEGRAM_REPLY_SENT:EDIT', ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
+                $wasSent = true;
+                break;
         }
 
-        $this->runtime->error('TELEGRAM_REPLY_NOT_SENT UNKNOWN MESSAGE REPLY TYPE', ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
-        return false;
+        if (!$wasSent) {
+            $this->runtime->error('TELEGRAM_REPLY_NOT_SENT UNKNOWN MESSAGE REPLY TYPE', ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
+        }
+
+        return $wasSent;
     }
 }
