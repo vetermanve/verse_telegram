@@ -100,6 +100,10 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
             $commandString = $update->getCallbackQuery()->data;
             $replyRoute->setOriginEntity($update->callbackQuery->id);
             $replyRoute->setAppear(MessageRoute::APPEAR_CALLBACK_ANSWER);
+        } elseif ($method === MessageType::EDITED_MESSAGE) {
+            $replyRoute->setAppear(MessageRoute::APPEAR_EDIT_MESSAGE);
+            // suggesting that our response was right after user message
+            $replyRoute->setOriginEntity($replyRoute->getOriginEntity() + 1);
         } elseif (!empty($text)) {
             $commandString = $this->_detectCommand($text);
         }
