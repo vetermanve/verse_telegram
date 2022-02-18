@@ -36,6 +36,7 @@ class TelegramUpdateProcessor extends RunRequestProcessorProto
         $response->setUid($request->getUid());
         $response->setBody("Not clear.");
         $response->setDestination($request->getReply());
+        $response->setChannelState($request->getChannelState());
 
         $suggestedClass = $this->requestRouter->getClassByRequest($request);
         $class = $this->controllerNamespace.$suggestedClass;
