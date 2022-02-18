@@ -54,7 +54,7 @@ class TelegramResponse
         }
 
         $dataString = $resource.(strpos($resource, '?') !== false ? '&' : '?').http_build_query($data);
-        if ($dataLen = strlen($dataString) > 64) {
+        if (($dataLen = strlen($dataString)) > 64) {
             throw new \Exception('Keyboard data is too long: '. $dataLen. ' ('.$dataString.')');
         }
 
