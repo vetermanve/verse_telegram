@@ -13,7 +13,7 @@
   ],
   "require": {
     "php": "^7.4",
-    "verse/run": "^0.0",
+    "verse/run": "^1.0",
     "irazasyed/telegram-bot-sdk": "^3.4",
     "ext-json": "*",
     "verse/storage" : "^1.0"
