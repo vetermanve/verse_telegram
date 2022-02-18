@@ -96,15 +96,10 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
 
         $text = $update->getMessage()->text ?? '';
 
+        // defining command string for different types of messages
         if ($method === MessageType::CALLBACK_QUERY) {
             $commandString = $update->getCallbackQuery()->data;
-            $replyRoute->setOriginEntity($update->callbackQuery->id);
-            $replyRoute->setAppear(MessageRoute::APPEAR_CALLBACK_ANSWER);
-        } elseif ($method === MessageType::EDITED_MESSAGE) {
-            $replyRoute->setAppear(MessageRoute::APPEAR_EDIT_MESSAGE);
-            // suggesting that our response was right after user message
-            $replyRoute->setOriginEntity($replyRoute->getOriginEntity() + 1);
-        } elseif (!empty($text)) {
+        } else if (!empty($text)) {
             $commandString = $this->_detectCommand($text);
         }
 
@@ -118,9 +113,17 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
             $text = trim(str_replace($commandString, '', $text));
         }
 
+        // defining default appearance
         if (isset($params[DisplayControl::PARAM_SET_APPEARANCE])) {
             $replyRoute->setAppear($params[DisplayControl::PARAM_SET_APPEARANCE]);
-            unset($params[DisplayControl::PARAM_SET_APPEARANCE]);
+            $replyRoute->setOriginEntity($params[DisplayControl::PARAM_SET_ENTITY] ?? '');
+            unset($params[DisplayControl::PARAM_SET_APPEARANCE], $params[DisplayControl::PARAM_SET_ENTITY]);
+        } else if ($method === MessageType::CALLBACK_QUERY) {
+            $replyRoute->setOriginEntity($update->callbackQuery->id);
+            $replyRoute->setAppear(MessageRoute::APPEAR_CALLBACK_ANSWER);
+        } else if ($method === MessageType::EDITED_MESSAGE) {
+            $replyRoute->setAppear(MessageRoute::APPEAR_EDIT_MESSAGE);
+            $replyRoute->setOriginEntity($replyRoute->getOriginEntity() + 1); // suggesting that our response was right after user message
         }
 
         $this->runtime->debug("Got UPDATE", [

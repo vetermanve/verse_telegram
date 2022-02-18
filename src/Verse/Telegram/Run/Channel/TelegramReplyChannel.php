@@ -4,7 +4,7 @@
 namespace Verse\Telegram\Run\Channel;
 
 
-use Telegram\Bot\Exceptions\TelegramOtherException;
+use Telegram\Bot\Exceptions\TelegramSDKException;
 use Verse\Telegram\Run\Channel\Util\MessageRoute;
 use Verse\Telegram\Service\VerseTelegramClient;
 use Verse\Run\Channel\DataChannelProto;
@@ -57,7 +57,7 @@ class TelegramReplyChannel extends DataChannelProto
                     $this->telegramClient->edit($route->getChatId(), $msg->getBody(), $keyboard, $route->getOriginEntity());
                     $this->runtime->debug('TELEGRAM_REPLY_SENT:EDIT', ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
                     $wasSent = true;
-                } catch (TelegramOtherException $exception) {
+                } catch (TelegramSDKException $exception) {
                     $this->runtime->debug('TELEGRAM_REPLY: Has edit mode exception:' . $exception->getMessage(),
                         ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
                     $this->telegramClient->post($route->getChatId(), $msg->getBody(), $keyboard);
