@@ -162,7 +162,7 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
                 break;
 
             case MessageType::CALLBACK_QUERY:
-                $request->data = $update->getCallbackQuery();
+                $request->data = $update->callbackQuery->all();
                 break;
 
             case MessageType::NEW_CHAT_MEMBERS:
