@@ -8,9 +8,9 @@ class MessageRoute
 {
     public const CHANNEL = 'tg';
 
-    public const APPEAR_NEW_MESSAGE = 'new_msg';
-    public const APPEAR_CALLBACK_ANSWER = 'callback';
-    public const APPEAR_EDIT_MESSAGE = 'edit';
+    public const APPEAR_NEW_MESSAGE = 'n';
+    public const APPEAR_CALLBACK_ANSWER = 'c';
+    public const APPEAR_EDIT_MESSAGE = 'e';
 
     private const DELIMITER = ':';
 
