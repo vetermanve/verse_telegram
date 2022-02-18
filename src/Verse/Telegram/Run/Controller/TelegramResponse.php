@@ -52,7 +52,7 @@ class TelegramResponse
             $data[DisplayControl::PARAM_SET_ENTITY] = $entityId;
         }
 
-        $this->keyboard[$text] = $resource.(strpos($resource, '?') !== false ? '&' : '?').http_build_str($data);
+        $this->keyboard[$text] = $resource.(strpos($resource, '?') !== false ? '&' : '?').http_build_query($data);
         return $this;
     }
 
