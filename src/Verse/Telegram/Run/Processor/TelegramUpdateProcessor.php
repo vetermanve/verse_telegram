@@ -6,7 +6,6 @@ namespace Verse\Telegram\Run\Processor;
 
 use Verse\Run\ChannelMessage\ChannelMsg;
 use Verse\Run\Controller\BaseControllerProto;
-use Verse\Run\Interfaces\RequestRouterInterface;
 use Verse\Run\Processor\RunRequestProcessorProto;
 use Verse\Run\RequestWrapper\RunHttpRequestWrapper;
 use Verse\Run\RunRequest;
@@ -16,11 +15,6 @@ use Verse\Telegram\Run\RequestRouter\TelegramRouterByMessageType;
 
 class TelegramUpdateProcessor extends RunRequestProcessorProto
 {
-    /**
-     * @var TelegramRouterByMessageType
-     */
-    protected TelegramRouterByMessageType $requestRouter;
-
     public function prepare()
     {
         if (!isset($this->requestRouter)) {
@@ -96,21 +90,4 @@ class TelegramUpdateProcessor extends RunRequestProcessorProto
             $this->sendResponse($response, $request);
         }
     }
-
-    /**
-     * @return RequestRouterInterface
-     */
-    public function getRequestRouter(): RequestRouterInterface
-    {
-        return $this->requestRouter;
-    }
-
-    /**
-     * @param RequestRouterInterface $requestRouter
-     */
-    public function setRequestRouter(RequestRouterInterface $requestRouter): void
-    {
-        $this->requestRouter = $requestRouter;
-    }
-
 }
