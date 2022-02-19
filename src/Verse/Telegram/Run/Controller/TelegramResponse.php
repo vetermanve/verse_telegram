@@ -81,9 +81,12 @@ class TelegramResponse
                                    $appendToPrevious = false
     ): TelegramResponse
     {
-        $data = [
-            DisplayControl::PARAM_SET_APPEARANCE => $appearance
-        ];
+        if (!is_array($data)) {
+            trigger_error(E_USER_WARNING, 'Data is not an array. Type "'.gettype($data).'"');
+            $data = [];
+        }
+
+        $data [DisplayControl::PARAM_SET_APPEARANCE] = $appearance;
 
         if ($entityId) {
             $data[DisplayControl::PARAM_SET_ENTITY] = $entityId;
