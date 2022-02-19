@@ -82,7 +82,7 @@ class TelegramResponse
     ): TelegramResponse
     {
         if (!is_array($data)) {
-            trigger_error(E_USER_WARNING, 'Data is not an array. Type "'.gettype($data).'"');
+            trigger_error('Data is not an array. Type "'.gettype($data).'"', E_USER_WARNING);
             $data = [];
         }
 
