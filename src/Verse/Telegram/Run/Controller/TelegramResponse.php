@@ -92,7 +92,7 @@ class TelegramResponse
         }
 
         $key = sizeof($this->keyboard) > 0 ? array_key_last($this->keyboard) : 0;
-        if (!$appendToPrevious && $key !== 0) {
+        if (!$appendToPrevious) {
             $key++;
         }
 
