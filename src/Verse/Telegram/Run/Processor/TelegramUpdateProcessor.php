@@ -16,12 +16,10 @@ use Verse\Telegram\Run\RequestRouter\TelegramRouterByMessageType;
 
 class TelegramUpdateProcessor extends RunRequestProcessorProto
 {
-    protected string $controllerNamespace = '\\App';
-
     /**
-     * @var RequestRouterInterface
+     * @var TelegramRouterByMessageType
      */
-    protected RequestRouterInterface $requestRouter;
+    protected TelegramRouterByMessageType $requestRouter;
 
     public function prepare()
     {
@@ -38,8 +36,7 @@ class TelegramUpdateProcessor extends RunRequestProcessorProto
         $response->setDestination($request->getReply());
         $response->setChannelState($request->getChannelState());
 
-        $suggestedClass = $this->requestRouter->getClassByRequest($request);
-        $class = $this->controllerNamespace . $suggestedClass;
+        $class = $this->requestRouter->getClassByRequest($request);
         $this->runtime->runtime('Got Class ' . $class, ['meta' => $request->meta,]);
 
         if (!class_exists($class)) {
@@ -116,19 +113,4 @@ class TelegramUpdateProcessor extends RunRequestProcessorProto
         $this->requestRouter = $requestRouter;
     }
 
-    /**
-     * @return string
-     */
-    public function getControllerNamespace(): string
-    {
-        return $this->controllerNamespace;
-    }
-
-    /**
-     * @param string $controllerNamespace
-     */
-    public function setControllerNamespace(string $controllerNamespace): void
-    {
-        $this->controllerNamespace = $controllerNamespace;
-    }
 }
