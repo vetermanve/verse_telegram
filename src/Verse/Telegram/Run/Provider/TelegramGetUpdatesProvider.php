@@ -34,7 +34,7 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
 
     public function run()
     {
-        $lastUpdateInfo = $this->updateTrackerStorage->read()->get('last_update', __METHOD__,0);
+        $lastUpdateInfo = $this->updateTrackerStorage->read()->get('last_update', __METHOD__, 0);
 
         $this->lastUpdateId = (double)$lastUpdateInfo['offset'] ?? 0;
         $this->runtime->debug('TELEGRAM_PULL_START', ['offsetId' => $this->lastUpdateId]);
@@ -57,7 +57,7 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
                     continue;
                 }
 
-                 $request = $this->processUpdate($updateId, $update);
+                $request = $this->processUpdate($updateId, $update);
 
                 if ($request) {
                     $request->data['update'] = $update;
@@ -68,7 +68,7 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
             }
 
             if (empty($updates)) {
-               sleep(1);
+                sleep(1);
             }
         }
     }
@@ -113,18 +113,28 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
             $text = trim(str_replace($commandString, '', $text));
         }
 
-        // defining default appearance
+        // if appearance (how message appear in user chat was set remotely
         if (isset($params[DisplayControl::PARAM_SET_APPEARANCE])) {
             $replyRoute->setAppear($params[DisplayControl::PARAM_SET_APPEARANCE]);
-            if (isset($params[DisplayControl::PARAM_SET_ENTITY])) {
-                $replyRoute->setOriginEntity($params[DisplayControl::PARAM_SET_ENTITY]);
-            } elseif($params[DisplayControl::PARAM_SET_APPEARANCE] === MessageRoute::APPEAR_CALLBACK_ANSWER) {
+
+            if ($params[DisplayControl::PARAM_SET_APPEARANCE] === MessageRoute::APPEAR_CALLBACK_ANSWER) {
                 $replyRoute->setOriginEntity($update->callbackQuery->id);
             }
-            unset($params[DisplayControl::PARAM_SET_APPEARANCE], $params[DisplayControl::PARAM_SET_ENTITY]);
+
+            $messageId = $update->getMessage()->get('message_id');
+            if ($params[DisplayControl::PARAM_SET_APPEARANCE] === MessageRoute::APPEAR_EDIT_MESSAGE && $messageId) {
+                $replyRoute->setOriginEntity($messageId);
+            } else {
+                $replyRoute->setAppear(MessageRoute::APPEAR_NEW_MESSAGE);
+            }
+            unset($params[DisplayControl::PARAM_SET_APPEARANCE]);
+
+        // if it's a native callback query - answer as callback answer
         } else if ($method === MessageType::CALLBACK_QUERY) {
             $replyRoute->setOriginEntity($update->callbackQuery->id);
             $replyRoute->setAppear(MessageRoute::APPEAR_CALLBACK_ANSWER);
+
+        // if this originally edited message - will try to edit message right behind
         } else if ($method === MessageType::EDITED_MESSAGE) {
             $replyRoute->setAppear(MessageRoute::APPEAR_EDIT_MESSAGE);
             $replyRoute->setOriginEntity($replyRoute->getOriginEntity() + 1); // suggesting that our response was right after user message
@@ -170,11 +180,11 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
                 break;
 
             case MessageType::NEW_CHAT_MEMBERS:
-                $request->data = $update->message[MessageType::NEW_CHAT_MEMBERS];
+                $request->data = $update->message->get(MessageType::NEW_CHAT_MEMBERS)->all();
                 break;
 
             case MessageType::LEFT_CHAT_MEMBER:
-                $request->data = $update->message[MessageType::LEFT_CHAT_MEMBER];
+                $request->data = $update->message->get(MessageType::LEFT_CHAT_MEMBER)->all();
                 break;
 
             case MessageType::GROUP_CHAT_CREATED:
@@ -201,7 +211,7 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
         $message = substr(trim($message), 0, 256);
 
         // replace all white-space characters to detect white spaces;
-        $message = strtr($message, ["\t" => ' ',"\n" => ' ',"\r" => ' ', "\0" => ' ',"\x0B" => ' ']);
+        $message = strtr($message, ["\t" => ' ', "\n" => ' ', "\r" => ' ', "\0" => ' ', "\x0B" => ' ']);
 
         if ($message[0] === '/') {
             $pos = strpos($message, ' ');
@@ -213,7 +223,8 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
         }
     }
 
-    private function _getMethod(Update $update) : string {
+    private function _getMethod(Update $update): string
+    {
         $keysIdx = array_flip($update->keys()->toArray());
 
         $method = MessageType::NOT_SUPPORTED;
@@ -223,7 +234,7 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
             }
         }
 
-        $this->runtime->runtime(__METHOD__, ['step' => 1,'keys' => $keysIdx, 'method' => $method,]);
+        $this->runtime->runtime(__METHOD__, ['step' => 1, 'keys' => $keysIdx, 'method' => $method,]);
 
         if ($method === MessageType::MESSAGE) {
             $method = MessageType::TEXT_MESSAGE;
@@ -235,7 +246,7 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
                 }
             }
 
-            $this->runtime->runtime(__METHOD__, ['step' => 2,'keys' => $keysIdx, 'method' => $method,]);
+            $this->runtime->runtime(__METHOD__, ['step' => 2, 'keys' => $keysIdx, 'method' => $method,]);
         }
 
         return $method;

@@ -58,7 +58,6 @@ class TelegramResponse
             $resource,
             $data,
             $appearance,
-            $entityId,
             true
             );
     }
@@ -68,7 +67,6 @@ class TelegramResponse
      * @param string $resource
      * @param array $data
      * @param string $appearance
-     * @param null $entityId
      * @param bool $appendToPrevious
      * @return $this
      * @throws Exception
@@ -77,7 +75,6 @@ class TelegramResponse
                                    string $resource,
                                    $data = [],
                                    $appearance = MessageRoute::APPEAR_NEW_MESSAGE,
-                                   $entityId = null,
                                    $appendToPrevious = false
     ): TelegramResponse
     {
@@ -87,10 +84,6 @@ class TelegramResponse
         }
 
         $data [DisplayControl::PARAM_SET_APPEARANCE] = $appearance;
-
-        if ($entityId) {
-            $data[DisplayControl::PARAM_SET_ENTITY] = $entityId;
-        }
 
         $dataString = $resource . (strpos($resource, '?') !== false ? '&' : '?') . http_build_query($data);
         if (($dataLen = strlen($dataString)) > 64) {
