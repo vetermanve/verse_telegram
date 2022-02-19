@@ -116,7 +116,9 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
         // defining default appearance
         if (isset($params[DisplayControl::PARAM_SET_APPEARANCE])) {
             $replyRoute->setAppear($params[DisplayControl::PARAM_SET_APPEARANCE]);
-            $replyRoute->setOriginEntity($params[DisplayControl::PARAM_SET_ENTITY] ?? '');
+            if (isset($params[DisplayControl::PARAM_SET_ENTITY])) {
+                $replyRoute->setOriginEntity($params[DisplayControl::PARAM_SET_ENTITY]);
+            }
             unset($params[DisplayControl::PARAM_SET_APPEARANCE], $params[DisplayControl::PARAM_SET_ENTITY]);
         } else if ($method === MessageType::CALLBACK_QUERY) {
             $replyRoute->setOriginEntity($update->callbackQuery->id);
