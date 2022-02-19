@@ -26,11 +26,19 @@ class TelegramRouterByMessageType implements RequestRouterInterface
             } else {
                 $controllerName = $moduleName;
             }
-        } else {
-            $controllerName = self::DEFAULT_CONTROLLER;
-            $moduleName = self::DEFAULT_MODULE;
+
+            $controllerClass = $this->buildClassName($moduleName, $controllerName);
+
+            if (class_exists($controllerClass)) {
+                return $controllerClass;
+            }
         }
 
+        return $this->buildClassName(self::DEFAULT_MODULE, self::DEFAULT_CONTROLLER);
+    }
+
+    protected function buildClassName($moduleName, $controllerName)
+    {
         return '\\' . $moduleName . '\\Controller\\' . $controllerName;
     }
 }

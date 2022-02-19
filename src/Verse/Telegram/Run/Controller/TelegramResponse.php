@@ -64,7 +64,7 @@ class TelegramResponse
     }
 
     /**
-     * @param string $text
+     * @param string $buttonText
      * @param string $resource
      * @param array $data
      * @param string $appearance
@@ -73,7 +73,7 @@ class TelegramResponse
      * @return $this
      * @throws Exception
      */
-    public function addKeyboardKey(string $text,
+    public function addKeyboardKey(string $buttonText,
                                    string $resource,
                                    $data = [],
                                    $appearance = MessageRoute::APPEAR_NEW_MESSAGE,
@@ -91,12 +91,12 @@ class TelegramResponse
             throw new Exception('Keyboard data is too long: ' . $dataLen . ' (' . $dataString . ')');
         }
 
-        $key = sizeof($this->keyboard) > 0 ? array_key_last($this->keyboard) : 0;
+        $buttonRow = sizeof($this->keyboard) > 0 ? array_key_last($this->keyboard) : 0;
         if (!$appendToPrevious) {
-            $key++;
+            $buttonRow++;
         }
 
-        $this->keyboard[$key][$text] = $dataString;
+        $this->keyboard[$buttonRow][$buttonText] = $dataString;
 
         return $this;
     }
