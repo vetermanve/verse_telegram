@@ -81,7 +81,10 @@ class TelegramResponse
                                    $appendToPrevious = false
     ): TelegramResponse
     {
-        $data[DisplayControl::PARAM_SET_APPEARANCE] = $appearance;
+        $data = [
+            DisplayControl::PARAM_SET_APPEARANCE => $appearance
+        ];
+
         if ($entityId) {
             $data[DisplayControl::PARAM_SET_ENTITY] = $entityId;
         }
