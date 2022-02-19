@@ -99,6 +99,7 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
         // defining command string for different types of messages
         if ($method === MessageType::CALLBACK_QUERY) {
             $commandString = $update->getCallbackQuery()->data;
+            $replyRoute->setOriginEntity($update->callbackQuery->id);
         } else if (!empty($text)) {
             $commandString = $this->_detectCommand($text);
         }
