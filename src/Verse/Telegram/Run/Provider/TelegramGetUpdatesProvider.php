@@ -99,7 +99,6 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
         // defining command string for different types of messages
         if ($method === MessageType::CALLBACK_QUERY) {
             $commandString = $update->getCallbackQuery()->data;
-            $replyRoute->setOriginEntity($update->callbackQuery->id);
         } else if (!empty($text)) {
             $commandString = $this->_detectCommand($text);
         }
@@ -119,6 +118,8 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
             $replyRoute->setAppear($params[DisplayControl::PARAM_SET_APPEARANCE]);
             if (isset($params[DisplayControl::PARAM_SET_ENTITY])) {
                 $replyRoute->setOriginEntity($params[DisplayControl::PARAM_SET_ENTITY]);
+            } elseif($method === MessageType::CALLBACK_QUERY) {
+                $replyRoute->setOriginEntity($update->callbackQuery->id);
             }
             unset($params[DisplayControl::PARAM_SET_APPEARANCE], $params[DisplayControl::PARAM_SET_ENTITY]);
         } else if ($method === MessageType::CALLBACK_QUERY) {
