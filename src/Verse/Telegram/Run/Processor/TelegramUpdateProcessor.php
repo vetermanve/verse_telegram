@@ -39,8 +39,8 @@ class TelegramUpdateProcessor extends RunRequestProcessorProto
         $response->setChannelState($request->getChannelState());
 
         $suggestedClass = $this->requestRouter->getClassByRequest($request);
-        $class = $this->controllerNamespace.$suggestedClass;
-        $this->runtime->runtime('Got Class '.$class, ['meta' => $request->meta,]);
+        $class = $this->controllerNamespace . $suggestedClass;
+        $this->runtime->runtime('Got Class ' . $class, ['meta' => $request->meta,]);
 
         if (!class_exists($class)) {
             $response->setBody('Cannot process: Class missing');
@@ -75,11 +75,16 @@ class TelegramUpdateProcessor extends RunRequestProcessorProto
 
                 if ($responseData->hasKeyboard()) {
                     $keyboard = [];
-                    foreach ($responseData->getKeyboard() as $keyTitle => $keyCallbackData) {
-                        $keyboard[] = [
-                            "text" => $keyTitle,
-                            "callback_data" => $keyCallbackData,
-                        ];
+                    foreach ($responseData->getKeyboard() as $rowId => $keyboardItems) {
+                        $keyboardRow = [];
+                        foreach ($keyboardItems as $keyTitle => $keyCallbackData) {
+                            $keyboardRow[] =
+                                [
+                                    "text" => $keyTitle,
+                                    "callback_data" => $keyCallbackData,
+                                ];
+                        }
+                        $keyboard[] = $keyboardRow;
                     }
 
                     $response->setMeta(TelegramReplyChannel::KEYBOARD, $keyboard);

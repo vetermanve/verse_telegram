@@ -89,7 +89,7 @@ class VerseTelegramClient
         ];
 
         if (!empty($keyboard)) {
-            $params['reply_markup'] = json_encode(['inline_keyboard' => [$keyboard]]);
+            $params['reply_markup'] = json_encode(['inline_keyboard' => $keyboard]);
         }
 
         if (!empty($replyToMessageId)) {
@@ -118,7 +118,7 @@ class VerseTelegramClient
         ];
 
         if (!empty($keyboard)) {
-            $params['reply_markup'] = json_encode(['inline_keyboard' => [$keyboard]]);
+            $params['reply_markup'] = json_encode(['inline_keyboard' => $keyboard]);
         }
 
         return $this->getApi()->editMessageText($params);
@@ -146,7 +146,7 @@ class VerseTelegramClient
     {
 
         try {
-            return $this->client->getApi()->getChat(['chat_id' => $id]);
+            return $this->getApi()->getChat(['chat_id' => $id]);
         } catch (\Throwable $exception) {
             return null;
         }

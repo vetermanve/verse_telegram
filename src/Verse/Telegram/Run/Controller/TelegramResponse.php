@@ -4,6 +4,7 @@
 namespace Verse\Telegram\Run\Controller;
 
 
+use Exception;
 use Verse\Telegram\Run\Channel\Util\MessageRoute;
 use Verse\Telegram\Run\Spec\DisplayControl;
 
@@ -12,6 +13,7 @@ class TelegramResponse
     private array $keyboard = [];
 
     private string $text = '';
+
     /**
      * @return array
      */
@@ -20,7 +22,8 @@ class TelegramResponse
         return $this->keyboard;
     }
 
-    public function hasKeyboard() : bool {
+    public function hasKeyboard(): bool
+    {
         return count($this->keyboard) > 0;
     }
 
@@ -40,25 +43,61 @@ class TelegramResponse
      * @param array $data
      * @param string $appearance
      * @param null $entityId
+     * @return TelegramResponse
+     * @throws Exception
+     */
+    public function upendKeyboardKey(string $text,
+                                     string $resource,
+                                     $data = [],
+                                     $appearance = MessageRoute::APPEAR_NEW_MESSAGE,
+                                     $entityId = null
+    ) : TelegramResponse
+    {
+        return $this->addKeyboardKey(
+            $text,
+            $resource,
+            $data,
+            $appearance,
+            $entityId,
+            true
+            );
+    }
+
+    /**
+     * @param string $text
+     * @param string $resource
+     * @param array $data
+     * @param string $appearance
+     * @param null $entityId
+     * @param bool $appendToPrevious
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function addKeyboardKey(string $text,
                                    string $resource,
                                    $data = [],
                                    $appearance = MessageRoute::APPEAR_NEW_MESSAGE,
-                                   $entityId = null) : TelegramResponse {
+                                   $entityId = null,
+                                   $appendToPrevious = false
+    ): TelegramResponse
+    {
         $data[DisplayControl::PARAM_SET_APPEARANCE] = $appearance;
         if ($entityId) {
             $data[DisplayControl::PARAM_SET_ENTITY] = $entityId;
         }
 
-        $dataString = $resource.(strpos($resource, '?') !== false ? '&' : '?').http_build_query($data);
+        $dataString = $resource . (strpos($resource, '?') !== false ? '&' : '?') . http_build_query($data);
         if (($dataLen = strlen($dataString)) > 64) {
-            throw new \Exception('Keyboard data is too long: '. $dataLen. ' ('.$dataString.')');
+            throw new Exception('Keyboard data is too long: ' . $dataLen . ' (' . $dataString . ')');
         }
 
-        $this->keyboard[$text] = $dataString;
+        $key = sizeof($this->keyboard) > 0 ? array_key_last($this->keyboard) : 0;
+        if (!$appendToPrevious && $key !== 0) {
+            $key++;
+        }
+
+        $this->keyboard[$key][$text] = $dataString;
+
         return $this;
     }
 
