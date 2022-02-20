@@ -15,6 +15,8 @@ class TelegramReplyChannel extends DataChannelProto
 {
     const KEYBOARD = 'keyboard';
 
+    const SKIPABLE_ERROR_SAME_MESSAGE = 'markup are exactly the same';
+
     /**
      * @var VerseTelegramClient
      */
@@ -58,10 +60,12 @@ class TelegramReplyChannel extends DataChannelProto
                     $this->runtime->debug('TELEGRAM_REPLY_SENT:EDIT', ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
                     $wasSent = true;
                 } catch (TelegramSDKException $exception) {
-                    $this->runtime->debug('TELEGRAM_REPLY: Has edit mode exception:' . $exception->getMessage(),
-                        ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
-                    $this->telegramClient->post($route->getChatId(), $msg->getBody(), $keyboard);
-                    $this->runtime->debug('TELEGRAM_REPLY_SENT:MESSAGE', ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
+                    if (!$this->isSkipableError($exception)) {
+                        $this->runtime->debug('TELEGRAM_REPLY: Has edit mode exception:' . $exception->getMessage(),
+                            ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
+                        $this->telegramClient->post($route->getChatId(), $msg->getBody(), $keyboard);
+                        $this->runtime->debug('TELEGRAM_REPLY_SENT:MESSAGE', ['request_id' => $msg->getUid(), 'to' => $msg->getDestination()]);
+                    }
                     $wasSent = true;
                 }
 
@@ -73,5 +77,12 @@ class TelegramReplyChannel extends DataChannelProto
         }
 
         return $wasSent;
+    }
+
+    private function isSkipableError (\Exception $exception) {
+        if (strpos($exception->getMessage(), self::SKIPABLE_ERROR_SAME_MESSAGE) !== false) {
+            return true;
+        }
+        return false;
     }
 }
