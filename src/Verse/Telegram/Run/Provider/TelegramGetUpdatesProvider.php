@@ -115,18 +115,19 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
 
         // if appearance (how message appear in user chat was set remotely
         if (isset($params[DisplayControl::PARAM_SET_APPEARANCE])) {
-            $replyRoute->setAppear($params[DisplayControl::PARAM_SET_APPEARANCE]);
-
-            if ($params[DisplayControl::PARAM_SET_APPEARANCE] === MessageRoute::APPEAR_CALLBACK_ANSWER) {
-                $replyRoute->setOriginEntity($update->callbackQuery->id);
-            }
 
             $messageId = $update->getMessage()->get('message_id');
-            if ($params[DisplayControl::PARAM_SET_APPEARANCE] === MessageRoute::APPEAR_EDIT_MESSAGE && $messageId) {
+
+            if ($params[DisplayControl::PARAM_SET_APPEARANCE] === MessageRoute::APPEAR_CALLBACK_ANSWER) {
+                $replyRoute->setAppear(MessageRoute::APPEAR_CALLBACK_ANSWER);
+                $replyRoute->setOriginEntity($update->callbackQuery->id);
+            } elseif ($params[DisplayControl::PARAM_SET_APPEARANCE] === MessageRoute::APPEAR_EDIT_MESSAGE && $messageId) {
+                $replyRoute->setAppear(MessageRoute::APPEAR_EDIT_MESSAGE);
                 $replyRoute->setOriginEntity($messageId);
             } else {
                 $replyRoute->setAppear(MessageRoute::APPEAR_NEW_MESSAGE);
             }
+
             unset($params[DisplayControl::PARAM_SET_APPEARANCE]);
 
         // if it's a native callback query - answer as callback answer
