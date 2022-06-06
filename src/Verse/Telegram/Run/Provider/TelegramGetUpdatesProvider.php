@@ -230,7 +230,7 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
 
         $method = MessageType::NOT_SUPPORTED;
         foreach (MessageType::TYPES as $typeVar) {
-            if ($keysIdx[$typeVar]) {
+            if (isset($keysIdx[$typeVar])) {
                 $method = $typeVar;
             }
         }
