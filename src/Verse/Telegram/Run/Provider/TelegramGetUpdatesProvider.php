@@ -242,7 +242,7 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
 
             $keysIdx = array_flip($update->getMessage()->keys()->toArray());
             foreach (MessageType::MESSAGE_SUBTYPES as $typeVar) {
-                if ($keysIdx[$typeVar]) {
+                if (isset($keysIdx[$typeVar])) {
                     $method = $typeVar;
                 }
             }
