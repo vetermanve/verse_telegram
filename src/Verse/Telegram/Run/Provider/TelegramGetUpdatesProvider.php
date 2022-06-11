@@ -206,7 +206,7 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
     }
 
 
-    private function _detectCommand(string $message)
+    private function _detectCommand(string $message) : string
     {
         // cut message to detect command
         $message = substr(trim($message), 0, 256);
@@ -222,6 +222,8 @@ class TelegramGetUpdatesProvider extends RequestProviderProto
 
             return substr($message, 0, $pos);
         }
+
+        return '';
     }
 
     private function _getMethod(Update $update): string
