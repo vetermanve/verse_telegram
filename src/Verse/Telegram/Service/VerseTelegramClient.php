@@ -113,7 +113,7 @@ class VerseTelegramClient
             'chat_id' => $chatId,
             'message_id' => $originalMessageId,
             'text' => is_string($text) ? $text : json_encode($text),
-            #'parse_mode' => 'html',
+            'parse_mode' => 'HTML',
             'disable_web_page_preview' => '1',
         ];
 
